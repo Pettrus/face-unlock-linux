@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"io"
 	"log"
 	"math"
 	"os"
@@ -21,16 +20,9 @@ func IdentifyFace(li chan *bytes.Buffer) {
 			os.Exit(1)
 		}
 
-		imgRecebida := <-li
-		const modelDir = "/home/pettrus/go/src/go-unlock/models"
-		const dataDir = "/home/pettrus/go/src/go-unlock/images"
+		const directory = "/lib/security/go-unlock/"
 
-		image, _ := os.Create("/home/pettrus/go/src/go-unlock/imagem.jpeg")
-		defer image.Close()
-
-		io.Copy(image, imgRecebida)
-
-		rec, err := face.NewRecognizer(modelDir)
+		rec, err := face.NewRecognizer(directory + "models")
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -38,7 +30,7 @@ func IdentifyFace(li chan *bytes.Buffer) {
 
 		//------------
 
-		dataImage := filepath.Join(dataDir, "base2.jpeg")
+		dataImage := filepath.Join(directory, "base.jpeg")
 
 		faces, err := rec.RecognizeFile(dataImage)
 		if err != nil {
@@ -54,7 +46,7 @@ func IdentifyFace(li chan *bytes.Buffer) {
 
 		//-------------
 
-		testData := filepath.Join("/home/pettrus/go/src/go-unlock", "imagem.jpeg")
+		testData := filepath.Join(directory, "image.jpeg")
 		testf, err := rec.RecognizeSingleFile(testData)
 		if err != nil {
 			log.Fatalln(err)
