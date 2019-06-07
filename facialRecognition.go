@@ -20,7 +20,7 @@ func IdentifyFace(li chan *bytes.Buffer) {
 			os.Exit(1)
 		}
 
-		const directory = "/lib/security/go-unlock/"
+		const directory = "/lib/security/go-face-unlock/"
 
 		rec, err := face.NewRecognizer(directory + "models")
 		if err != nil {

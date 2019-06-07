@@ -51,7 +51,24 @@ func InsertStringToFile(path, str string, index int) error {
 	return ioutil.WriteFile(path, []byte(fileContent), 0644)
 }
 
-func copyFile(src, dst string) error {
+func RemoveStringFromFile(path, str string) error {
+	lines, err := file2lines(path)
+	if err != nil {
+		return err
+	}
+
+	fileContent := ""
+	for _, line := range lines {
+		if line != str {
+			fileContent += line
+			fileContent += "\n"
+		}
+	}
+
+	return ioutil.WriteFile(path, []byte(fileContent), 0644)
+}
+
+func CopyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
 		return err

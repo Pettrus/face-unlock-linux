@@ -215,7 +215,7 @@ func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li cha
 				imageName = "base.jpeg"
 			}
 
-			image, _ := os.Create("/lib/security/go-unlock/" + imageName)
+			image, _ := os.Create("/lib/security/go-face-unlock/" + imageName)
 			defer image.Close()
 
 			io.Copy(image, buf)
