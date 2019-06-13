@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/Pettrus/go-face-unlock/master/mascot.png" width="40%">
 </p>
-Go face unlock is a script created to provide similar functionality as Windows Hello but without a IR emitters to validate you using facial regonition on linux machines.
+Go face unlock is a script created to provide similar functionality as Windows Hello but without a IR emitters to validate you using facial recognition on linux machines.
 
 It uses [PAM](https://en.wikipedia.org/wiki/Linux_PAM)(Pluggable Authentication Modules) so it works on login screen, sudo and su on the terminal.
 
@@ -12,9 +12,16 @@ cd go-face-unlock
 sudo ./main install
 ```
 
-The script will take a picture of you to use as base for the facial regonition, so stand still and be on a well lit room for this first photo.
+The script will take a picture of you to use as base for the facial recognition, so stand still and be on a well lit room for this first photo.
 
 After installation everything should be working, open a new terminal and type some sudo command to see it working.
+
+### Add new pictures
+
+You can add more pictures to improve the recognition, for that use the command:
+```
+sudo ./main add
+```
 
 ### Uninstall
 
