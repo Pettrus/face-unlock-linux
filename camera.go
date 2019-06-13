@@ -3,12 +3,15 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/blackjack/webcam"
 )
@@ -208,19 +211,35 @@ func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li cha
 		}
 		if nn == 0 {
 			imageName := ""
+			folder := ""
 
 			if initialSetup == false {
 				imageName = "image.jpeg"
 			} else {
-				imageName = "base.jpeg"
+				rand.Seed(time.Now().UnixNano())
+				imageName = fmt.Sprintf("%d.jpeg", rand.Int())
+				folder = "images/"
 			}
 
-			image, _ := os.Create("/lib/security/go-face-unlock/" + imageName)
+			imgSrc := "/lib/security/go-face-unlock/" + folder + imageName
+
+			image, _ := os.Create(imgSrc)
 			defer image.Close()
 
 			io.Copy(image, buf)
 
 			if initialSetup {
+				faces := ImgHasFaces(imgSrc)
+				const msg = ", if you are installing use the command 'add' from now on"
+
+				if faces > 1 {
+					fmt.Println("There can only be one person on the picture" + msg)
+					os.Remove(imgSrc)
+				} else if faces < 1 {
+					fmt.Println("No face found" + msg)
+					os.Remove(imgSrc)
+				}
+
 				os.Exit(0)
 			}
 

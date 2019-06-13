@@ -10,13 +10,29 @@ import (
 	"github.com/Kagami/go-face"
 )
 
+func ImgHasFaces(img string) int {
+	const directory = "/lib/security/go-face-unlock/"
+
+	rec, err := face.NewRecognizer(directory + "models")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	faces, err := rec.RecognizeFile(img)
+	if err != nil {
+		log.Fatalf("Can't recognize: %v", err)
+	}
+
+	return len(faces)
+}
+
 func IdentifyFace(li chan *bytes.Buffer) {
 	numOfTry := 0
 
 	for {
 		numOfTry++
 
-		if numOfTry > 5 {
+		if numOfTry > 3 {
 			os.Exit(1)
 		}
 
@@ -30,36 +46,36 @@ func IdentifyFace(li chan *bytes.Buffer) {
 
 		//------------
 
-		dataImage := filepath.Join(directory, "base.jpeg")
-
-		faces, err := rec.RecognizeFile(dataImage)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		var samples []face.Descriptor
-		var totalF []int32
-		for i, f := range faces {
-			samples = append(samples, f.Descriptor)
-			totalF = append(totalF, int32(i))
-		}
-
-		//-------------
-
 		testData := filepath.Join(directory, "image.jpeg")
 		testf, err := rec.RecognizeSingleFile(testData)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		if testf != nil {
-			id := compareFaces(samples, testf.Descriptor, 0.6)
-			if id < 0 {
-				log.Fatalln("didn't find known face")
+		//------------
+
+		for _, file := range ReturnFilesOnFolder(directory + "images") {
+			faces, err := rec.RecognizeFile(directory + "images/" + file.Name())
+			if err != nil {
+				log.Fatalln(err)
 			}
 
-			//Face found, exit successfully
-			os.Exit(0)
+			var samples []face.Descriptor
+			var totalF []int32
+			for i, f := range faces {
+				samples = append(samples, f.Descriptor)
+				totalF = append(totalF, int32(i))
+			}
+
+			if testf != nil {
+				id := compareFaces(samples, testf.Descriptor, 0.6)
+				if id < 0 {
+					log.Fatalln("didn't find known face")
+				}
+
+				//Face found, exit successfully
+				os.Exit(0)
+			}
 		}
 	}
 }

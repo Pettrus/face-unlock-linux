@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -86,4 +87,13 @@ func CopyFile(src, dst string) error {
 		return err
 	}
 	return out.Close()
+}
+
+func ReturnFilesOnFolder(directory string) []os.FileInfo {
+	files, err := ioutil.ReadDir(directory)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return files
 }

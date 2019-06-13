@@ -17,6 +17,8 @@ func main() {
 			install(path, permission)
 		} else if param == "uninstall" {
 			uninstall(path, permission)
+		} else if param == "add" {
+			TakePicture(true)
 		}
 	} else {
 		TakePicture(false)
@@ -31,6 +33,10 @@ func install(path string, permission string) {
 
 	if _, err := os.Stat(path + "models"); os.IsNotExist(err) {
 		os.MkdirAll(path+"models", os.ModePerm)
+	}
+
+	if _, err := os.Stat(path + "images"); os.IsNotExist(err) {
+		os.MkdirAll(path+"images", os.ModePerm)
 	}
 
 	CopyFile("main", path+"main")
