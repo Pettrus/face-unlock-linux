@@ -2,42 +2,43 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"math"
 	"os"
-	"path/filepath"
+	"strconv"
 
 	"github.com/Kagami/go-face"
 )
 
-func ImgHasFaces(img string) int {
-	const directory = "/lib/security/go-face-unlock/"
+const directory = "/lib/security/go-face-unlock/"
 
+func AddFace(imgBuffer *bytes.Buffer) {
+	const msg = ", if you are installing use the command 'add' from now on"
 	rec, err := face.NewRecognizer(directory + "models")
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer rec.Close()
 
-	faces, err := rec.RecognizeFile(img)
+	face, err := rec.Recognize(imgBuffer.Bytes())
 	if err != nil {
 		log.Fatalf("Can't recognize: %v", err)
 	}
 
-	return len(faces)
+	if len(face) > 1 {
+		fmt.Println("There can only be one person on the picture" + msg)
+	} else if len(face) < 1 {
+		fmt.Println("No face found" + msg)
+	} else {
+		SaveFaceDescriptions(face[0].Descriptor)
+	}
+
+	os.Exit(0)
 }
 
-func IdentifyFace(li chan *bytes.Buffer) {
-	numOfTry := 0
-
-	for {
-		numOfTry++
-
-		if numOfTry > 3 {
-			os.Exit(1)
-		}
-
-		const directory = "/lib/security/go-face-unlock/"
-
+func IdentifyFace(imgBuffer *bytes.Buffer) {
+	for i := 0; i < 4; i++ {
 		rec, err := face.NewRecognizer(directory + "models")
 		if err != nil {
 			log.Fatalln(err)
@@ -46,38 +47,47 @@ func IdentifyFace(li chan *bytes.Buffer) {
 
 		//------------
 
-		testData := filepath.Join(directory, "image.jpeg")
-		testf, err := rec.RecognizeSingleFile(testData)
+		testf, err := rec.RecognizeSingle(imgBuffer.Bytes())
 		if err != nil {
 			log.Fatalln(err)
 		}
 
 		//------------
 
-		for _, file := range ReturnFilesOnFolder(directory + "images") {
-			faces, err := rec.RecognizeFile(directory + "images/" + file.Name())
+		var faceDesc []face.Descriptor
+
+		for _, file := range ReturnFilesOnFolder(directory + "faces") {
+			lines, err := File2lines(directory + "faces/" + file.Name())
+
 			if err != nil {
-				log.Fatalln(err)
+				log.Fatalf("Error reading face descriptions")
 			}
 
-			var samples []face.Descriptor
-			var totalF []int32
-			for i, f := range faces {
-				samples = append(samples, f.Descriptor)
-				totalF = append(totalF, int32(i))
-			}
+			var descriptions [128]float32
 
-			if testf != nil {
-				id := compareFaces(samples, testf.Descriptor, 0.6)
-				if id < 0 {
-					log.Fatalln("didn't find known face")
+			for i, line := range lines {
+				num, err := strconv.ParseFloat(line, 32)
+				if err != nil {
+					log.Fatalf("Error converting face description")
 				}
-
-				//Face found, exit successfully
-				os.Exit(0)
+				descriptions[i] = float32(num)
 			}
+
+			faceDesc = append(faceDesc, descriptions)
+		}
+
+		if testf != nil {
+			id := compareFaces(faceDesc, testf.Descriptor, 0.6)
+			if id < 0 {
+				log.Fatalln("didn't find known face")
+			}
+
+			//Face found, exit successfully
+			os.Exit(0)
 		}
 	}
+
+	os.Exit(1)
 }
 
 func compareFaces(samples []face.Descriptor, comp face.Descriptor, tolerance float32) int {

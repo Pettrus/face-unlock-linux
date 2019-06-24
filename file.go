@@ -2,20 +2,16 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
-)
+	"time"
 
-func file2lines(filePath string) ([]string, error) {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return linesFromReader(f)
-}
+	"github.com/Kagami/go-face"
+)
 
 func linesFromReader(r io.Reader) ([]string, error) {
 	var lines []string
@@ -30,12 +26,38 @@ func linesFromReader(r io.Reader) ([]string, error) {
 	return lines, nil
 }
 
+func File2lines(filePath string) ([]string, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return linesFromReader(f)
+}
+
+func SaveFaceDescriptions(face face.Descriptor) {
+	rand.Seed(time.Now().UnixNano())
+
+	file, err := os.Create("/lib/security/go-face-unlock/faces/" + fmt.Sprintf("%d.txt", rand.Int()))
+	if err != nil {
+		log.Fatalf("Error saving descriptions")
+	}
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	for _, line := range face {
+		fmt.Fprintln(w, line)
+	}
+
+	w.Flush()
+}
+
 /**
  * Insert sting to n-th line of file.
  * If you want to insert a line, append newline '\n' to the end of the string.
  */
 func InsertStringToFile(path, str string, index int) error {
-	lines, err := file2lines(path)
+	lines, err := File2lines(path)
 	if err != nil {
 		return err
 	}
@@ -53,7 +75,7 @@ func InsertStringToFile(path, str string, index int) error {
 }
 
 func RemoveStringFromFile(path, str string) error {
-	lines, err := file2lines(path)
+	lines, err := File2lines(path)
 	if err != nil {
 		return err
 	}

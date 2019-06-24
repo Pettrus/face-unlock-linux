@@ -5,18 +5,19 @@ import (
 	"os"
 )
 
+const path = "/lib/security/go-face-unlock/"
+const permission = "auth sufficient pam_exec.so stdout /lib/security/go-face-unlock/main"
+
 func main() {
 	param := ""
 
 	if len(os.Args) > 1 {
 		param = os.Args[1]
-		const path = "/lib/security/go-face-unlock/"
-		const permission = "auth sufficient pam_exec.so stdout /lib/security/go-face-unlock/main"
 
 		if param == "install" {
-			install(path, permission)
+			install()
 		} else if param == "uninstall" {
-			uninstall(path, permission)
+			uninstall()
 		} else if param == "add" {
 			TakePicture(true)
 		}
@@ -25,7 +26,7 @@ func main() {
 	}
 }
 
-func install(path string, permission string) {
+func install() {
 	if _, err := os.Stat(path); err == nil {
 		fmt.Println("Go face unlock is already installed on your system ;)")
 		return
@@ -35,8 +36,8 @@ func install(path string, permission string) {
 		os.MkdirAll(path+"models", os.ModePerm)
 	}
 
-	if _, err := os.Stat(path + "images"); os.IsNotExist(err) {
-		os.MkdirAll(path+"images", os.ModePerm)
+	if _, err := os.Stat(path + "faces"); os.IsNotExist(err) {
+		os.MkdirAll(path+"faces", os.ModePerm)
 	}
 
 	CopyFile("main", path+"main")
@@ -53,7 +54,7 @@ func install(path string, permission string) {
 	fmt.Println("Go face unlock installed with success! :)")
 }
 
-func uninstall(path string, permission string) {
+func uninstall() {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Println("Go face unlock is not currently installed :(")
 		return
