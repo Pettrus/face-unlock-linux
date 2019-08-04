@@ -5,10 +5,67 @@ Go face unlock is a script created to provide similar functionality as Windows H
 
 It uses [PAM](https://en.wikipedia.org/wiki/Linux_PAM)(Pluggable Authentication Modules) so it works on login screen, sudo and su on the terminal.
 
+### Pre-Install
+Before we continue first we need to get dlib and go face going
+
+#### Ubuntu 16.04, Ubuntu 18.04
+
+You may use [dlib PPA](https://launchpad.net/~kagamih/+archive/ubuntu/dlib)
+which contains latest dlib package compiled with Intel MKL support:
+
+```bash
+sudo add-apt-repository ppa:kagamih/dlib
+sudo apt-get update
+sudo apt-get install libdlib-dev libjpeg-turbo8-dev
+```
+
+#### Ubuntu 18.10+, Debian sid
+
+Latest versions of Ubuntu and Debian provide suitable dlib package so just run:
+
+```bash
+# Ubuntu
+sudo apt-get install libdlib-dev libopenblas-dev libjpeg-turbo8-dev
+# Debian
+sudo apt-get install libdlib-dev libopenblas-dev libjpeg62-turbo-dev
+```
+
+**ONLY FOR UBUNTU 18.10+ AND DEBIAN SID:**  
+It won't install pkgconfig metadata file so create one in
+`/usr/local/lib/pkgconfig/dlib-1.pc` with the following content:
+
+```
+libdir=/usr/lib/x86_64-linux-gnu
+includedir=/usr/include
+
+Name: dlib
+Description: Numerical and networking C++ library
+Version: 19.10.0
+Libs: -L${libdir} -ldlib -lblas -llapack
+Cflags: -I${includedir}
+Requires:
+```
+
 ### Installation
 ```
 git clone https://github.com/Pettrus/go-face-unlock.git
 cd go-face-unlock
+```
+
+Then we need to download and unzip our 2 models
+
+```bash
+cd models
+wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2
+bunzip2 shape_predictor_5_face_landmarks.dat.bz2
+
+wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2
+bunzip2 dlib_face_recognition_resnet_model_v1.dat.bz2
+cd ..
+```
+
+Finally run the installer:
+```
 sudo ./main install
 ```
 
