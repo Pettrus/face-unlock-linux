@@ -39,7 +39,7 @@ var supportedFormats = map[webcam.PixelFormat]bool{
 	V4L2_PIX_FMT_YUYV: true,
 }
 
-func TakePicture(initialSetup bool) {
+func TakePicture(addFace bool, initialSetup bool) {
 	dev := flag.String("d", "/dev/video0", "video device to use")
 	fmtstr := flag.String("f", "", "video format to use, default first supported")
 	szstr := flag.String("s", "", "frame size to use, default largest one")
@@ -116,7 +116,7 @@ FMT:
 		back chan struct{}      = make(chan struct{})
 	)
 
-	go encodeToImage(cam, back, fi, li, w, h, f, initialSetup)
+	go encodeToImage(cam, back, fi, li, w, h, f, addFace, initialSetup)
 
 	timeout := uint32(5) //5 seconds
 
@@ -152,7 +152,8 @@ FMT:
 	}
 }
 
-func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li chan *bytes.Buffer, w, h uint32, format webcam.PixelFormat, isNewFace bool) {
+func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li chan *bytes.Buffer, w, h uint32, format webcam.PixelFormat,
+	addFace bool, initialSetup bool) {
 	var (
 		frame []byte
 		img   image.Image
@@ -201,8 +202,8 @@ func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li cha
 			}
 		}
 		if nn == 0 {
-			if isNewFace {
-				AddFace(buf)
+			if addFace {
+				AddFace(buf, initialSetup)
 			} else {
 				IdentifyFace(buf)
 			}

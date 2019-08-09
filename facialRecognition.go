@@ -13,9 +13,9 @@ import (
 
 const directory = "/lib/security/go-face-unlock/"
 
-func AddFace(imgBuffer *bytes.Buffer) {
-	const msg = ", if you are installing use the command 'add' from now on"
+func AddFace(imgBuffer *bytes.Buffer, initialSetup bool) {
 	rec, err := face.NewRecognizer(directory + "models")
+
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -26,15 +26,27 @@ func AddFace(imgBuffer *bytes.Buffer) {
 		log.Fatalf("Can't recognize: %v", err)
 	}
 
-	if len(face) > 1 {
-		fmt.Println("There can only be one person on the picture" + msg)
-	} else if len(face) < 1 {
-		fmt.Println("No face found" + msg)
-	} else {
+	if len(face) == 1 {
 		SaveFaceDescriptions(face[0].Descriptor)
-	}
 
-	os.Exit(0)
+		if initialSetup {
+			fmt.Println("Go face unlock installed with success! :)")
+		} else {
+			fmt.Println("New face added")
+		}
+
+		os.Exit(0)
+	} else {
+		if len(face) > 1 {
+			fmt.Println("There can only be one person on the picture")
+		} else {
+			fmt.Println("No face found")
+		}
+
+		if initialSetup {
+			fmt.Println("Trying again...")
+		}
+	}
 }
 
 func IdentifyFace(imgBuffer *bytes.Buffer) {
@@ -86,6 +98,8 @@ func IdentifyFace(imgBuffer *bytes.Buffer) {
 			os.Exit(0)
 		}
 	}
+
+	fmt.Println("Face not recognized, falling back to password.")
 
 	os.Exit(1)
 }

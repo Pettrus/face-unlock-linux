@@ -8,9 +8,11 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/Kagami/go-face"
+	"golang.org/x/sys/unix"
 )
 
 func linesFromReader(r io.Reader) ([]string, error) {
@@ -118,4 +120,23 @@ func ReturnFilesOnFolder(directory string) []os.FileInfo {
 	}
 
 	return files
+}
+
+func Writable(path string) bool {
+	return unix.Access(path, unix.W_OK) == nil
+}
+
+func Wget(url, filepath string) error {
+	// run shell `wget URL -O filepath`
+	cmd := exec.Command("wget", url, "-O", filepath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func Bunzip2(file string) error {
+	cmd := exec.Command("bunzip2", file)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
