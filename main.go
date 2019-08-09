@@ -85,6 +85,8 @@ func uninstall() {
 	RemoveStringFromFile("/etc/pam.d/sudo", permission)
 	RemoveStringFromFile("/etc/pam.d/su", permission)
 	RemoveStringFromFile("/etc/pam.d/gdm-password", permission)
+	RemoveStringFromFile("/etc/pam.d/lightdm", permission)
+	RemoveStringFromFile("/etc/pam.d/gnome-screensaver", permission)
 
 	fmt.Println("Go face unlock removed with success! :(")
 }
