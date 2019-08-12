@@ -47,21 +47,21 @@ Requires:
 ```
 
 ### Installation
+
+## From binary
+Download the lastest compiled version [here](https://github.com/Pettrus/face-unlock-linux/releases)
+
+Then run:
+```
+sudo ./main install
+```
+
+## From source
 ```
 git clone https://github.com/Pettrus/go-face-unlock.git
 cd go-face-unlock
-```
-
-Then we need to download and unzip our 2 models
-
-```bash
-cd models
-wget https://github.com/davisking/dlib-models/raw/master/shape_predictor_5_face_landmarks.dat.bz2
-bunzip2 shape_predictor_5_face_landmarks.dat.bz2
-
-wget https://github.com/davisking/dlib-models/raw/master/dlib_face_recognition_resnet_model_v1.dat.bz2
-bunzip2 dlib_face_recognition_resnet_model_v1.dat.bz2
-cd ..
+go get github.com/Kagami/go-face
+go build main.go camera.go facialRecognition.go file.go
 ```
 
 Finally run the installer:
